@@ -23,7 +23,10 @@ function cod_verifier_settings_page() {
         update_option('cod_verifier_enable_otp', sanitize_text_field($_POST['enable_otp']));
         update_option('cod_verifier_test_mode', sanitize_text_field($_POST['test_mode']));
         
-        // NEW: Multi-country settings
+        // NEW: UI Type setting
+        update_option('cod_verifier_ui_type', sanitize_text_field($_POST['ui_type']));
+        
+        // Multi-country settings
         update_option('cod_verifier_allowed_regions', sanitize_text_field($_POST['allowed_regions']));
         update_option('cod_verifier_otp_timer_duration', intval($_POST['otp_timer_duration']));
         
@@ -38,6 +41,7 @@ function cod_verifier_settings_page() {
     // Get current settings
     $enable_otp = get_option('cod_verifier_enable_otp', '1');
     $test_mode = get_option('cod_verifier_test_mode', '1');
+    $ui_type = get_option('cod_verifier_ui_type', 'inline'); // NEW: Default to inline
     $allowed_regions = get_option('cod_verifier_allowed_regions', 'india');
     $otp_timer_duration = get_option('cod_verifier_otp_timer_duration', 30);
     $twilio_sid = get_option('cod_verifier_twilio_sid', '');
@@ -79,7 +83,31 @@ function cod_verifier_settings_page() {
                     </td>
                 </tr>
                 
-           </table>
+            </table>
+            
+            <h2><?php _e('🔘 Verification UI Type', 'cod-verifier'); ?></h2>
+            <table class="form-table">
+                <tr>
+                    <th scope="row"><?php _e('UI Display Mode', 'cod-verifier'); ?></th>
+                    <td>
+                        <label>
+                            <input type="radio" name="ui_type" value="inline" <?php checked($ui_type, 'inline'); ?>>
+                            <strong><?php _e('⭕ Inline Verification Card (Default)', 'cod-verifier'); ?></strong>
+                        </label>
+                        <p class="description" style="margin-left: 25px;">
+                            <?php _e('Shows the verification card directly on the checkout page below the payment method.', 'cod-verifier'); ?>
+                        </p>
+                        <br>
+                        <label>
+                            <input type="radio" name="ui_type" value="popup" <?php checked($ui_type, 'popup'); ?>>
+                            <strong><?php _e('⭕ Popup Modal Verification', 'cod-verifier'); ?></strong>
+                        </label>
+                        <p class="description" style="margin-left: 25px;">
+                            <?php _e('Opens verification in a popup modal window when COD is selected.', 'cod-verifier'); ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
             
             <h2><?php _e('🌍 Multi-Country Settings', 'cod-verifier'); ?></h2>
             <table class="form-table">
@@ -146,6 +174,7 @@ function cod_verifier_settings_page() {
             <h3><?php _e('🚀 Setup Guide', 'cod-verifier'); ?></h3>
             <ol>
                 <li><strong><?php _e('Choose Mode:', 'cod-verifier'); ?></strong> <?php _e('Start with Test Mode for safe testing', 'cod-verifier'); ?></li>
+                <li><strong><?php _e('Select UI Type:', 'cod-verifier'); ?></strong> <?php _e('Choose between Inline Card or Popup Modal', 'cod-verifier'); ?></li>
                 <li><strong><?php _e('Configure Twilio:', 'cod-verifier'); ?></strong> <?php _e('Add your Twilio credentials for SMS', 'cod-verifier'); ?></li>                
                 <li><strong><?php _e('Test Everything:', 'cod-verifier'); ?></strong> <?php _e('Test OTP in Test Mode', 'cod-verifier'); ?></li>
                 <li><strong><?php _e('Go Live:', 'cod-verifier'); ?></strong> <?php _e('Switch to Production Mode when ready', 'cod-verifier'); ?></li>
@@ -153,12 +182,13 @@ function cod_verifier_settings_page() {
             
             <h4><?php _e('🔒 Security Features', 'cod-verifier'); ?></h4>
             <ul>
-            <li><?php _e('✓ API keys are securely stored and masked in UI', 'cod-verifier'); ?></li>
-            <li><?php _e('✓ ₹1 token payments are automatically refunded', 'cod-verifier'); ?></li>
-            <li><?php _e('✓ All transactions are verified with Razorpay signatures', 'cod-verifier'); ?></li>
-            <li><?php _e('✓ Multi-country phone validation with E.164 format', 'cod-verifier'); ?></li>
-            <li><?php _e('✓ OTP timer prevents spam and abuse', 'cod-verifier'); ?></li>
-        </ul>
+                <li><?php _e('✓ API keys are securely stored and masked in UI', 'cod-verifier'); ?></li>
+                <li><?php _e('✓ ₹1 token payments are automatically refunded', 'cod-verifier'); ?></li>
+                <li><?php _e('✓ All transactions are verified with Razorpay signatures', 'cod-verifier'); ?></li>
+                <li><?php _e('✓ Multi-country phone validation with E.164 format', 'cod-verifier'); ?></li>
+                <li><?php _e('✓ OTP timer prevents spam and abuse', 'cod-verifier'); ?></li>
+                <li><?php _e('✓ Flexible UI modes: Inline card or popup modal', 'cod-verifier'); ?></li>
+            </ul>
         </div>
     </div>
     <?php

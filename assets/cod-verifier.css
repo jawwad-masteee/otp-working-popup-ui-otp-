@@ -26,7 +26,135 @@
     order: -1; /* Ensure it appears first if inside any flex container */
 }
 
-/* ===== NEW WARNING MESSAGE STYLES ===== */
+/* ===== NEW: POPUP MODAL STYLES ===== */
+.cod-popup-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+.cod-popup-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+}
+
+.cod-popup-content {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+    animation: cod-popup-slide-in 0.3s ease-out;
+}
+
+@keyframes cod-popup-slide-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.cod-popup-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    z-index: 10;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.cod-popup-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.cod-popup-verification {
+    padding: 0;
+}
+
+.cod-popup-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 15px 20px 20px 20px;
+    color: #dc2626;
+    font-weight: 500;
+    text-align: center;
+    font-size: 14px;
+}
+
+/* ===== NEW: BLINKING COMPLETE VERIFICATION BUTTON ===== */
+.cod-complete-verification-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 15px 0;
+    width: 100%;
+    transition: all 0.3s ease;
+    animation: cod-pulse 1.5s infinite;
+}
+
+.cod-complete-verification-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.cod-complete-verification-btn:disabled,
+.cod-complete-verification-btn.disabled {
+    background: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    animation: none;
+    opacity: 0.6;
+}
+
+@keyframes cod-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.02);
+    }
+}
+
+/* ===== WARNING MESSAGE STYLES ===== */
 .cod-verification-warning {
     width: 100% !important;
     margin: 15px 0 !important;
@@ -87,6 +215,16 @@
     
     .cod-warning-icon {
         font-size: 14px;
+    }
+    
+    .cod-popup-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .cod-popup-close {
+        top: 10px;
+        right: 15px;
     }
 }
 
@@ -327,10 +465,6 @@
 .cod-btn-success.verified {
     background: #155724;
 }
-
-
-
-
 
 .cod-status-summary {
     background: #f9fafb;

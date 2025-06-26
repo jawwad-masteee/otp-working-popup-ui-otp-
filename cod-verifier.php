@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name: COD Verifier for WooCommerce
-Description: Multi-country OTP +  Twilio SMS integration
-Version: 1.3.0
+Description: Multi-country OTP +  Twilio SMS integration with UI modes
+Version: 1.4.0
 Author: Your Name
 Requires at least: 5.0
 Tested up to: 6.4
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('COD_VERIFIER_VERSION', '1.3.0');
+define('COD_VERIFIER_VERSION', '1.4.0');
 define('COD_VERIFIER_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('COD_VERIFIER_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
@@ -79,6 +79,9 @@ class CODVerifier {
         // Add verification box to footer
         add_action('wp_footer', array($this, 'add_verification_box_to_footer'));
         
+        // NEW: Add popup modal to footer
+        add_action('wp_footer', array($this, 'add_popup_modal_to_footer'));
+        
         // Server-side validation with HIGHEST PRIORITY
         add_action('woocommerce_checkout_process', array($this, 'validate_checkout'), 1);
         
@@ -124,6 +127,7 @@ class CODVerifier {
                 'testMode' => get_option('cod_verifier_test_mode', '1'),
                 'allowedRegions' => get_option('cod_verifier_allowed_regions', 'india'),
                 'otpTimerDuration' => get_option('cod_verifier_otp_timer_duration', 30),
+                'uiType' => get_option('cod_verifier_ui_type', 'inline'), // NEW: Pass UI type
             ));
         }
     }
@@ -134,13 +138,40 @@ class CODVerifier {
         }
         
         $enable_otp = get_option('cod_verifier_enable_otp', '1');
-        $enable_token = get_option('cod_verifier_enable_token', '1');
+        $ui_type = get_option('cod_verifier_ui_type', 'inline');
         
-        if ($enable_otp === '1' || $enable_token === '1') {
+        if ($enable_otp === '1') {
             // Output hidden template wrapper
             echo '<div id="cod-verification-template" style="display: none;">';
             include COD_VERIFIER_PLUGIN_PATH . 'templates/otp-box.php';
             echo '</div>';
+        }
+    }
+    
+    // NEW: Add popup modal to footer
+    public function add_popup_modal_to_footer() {
+        if (!is_checkout()) {
+            return;
+        }
+        
+        $enable_otp = get_option('cod_verifier_enable_otp', '1');
+        $ui_type = get_option('cod_verifier_ui_type', 'inline');
+        
+        if ($enable_otp === '1' && $ui_type === 'popup') {
+            ?>
+            <div id="cod-popup-modal" class="cod-popup-modal" style="display: none;">
+                <div class="cod-popup-overlay"></div>
+                <div class="cod-popup-content">
+                    <span class="cod-popup-close">&times;</span>
+                    <div class="cod-popup-verification">
+                        <?php include COD_VERIFIER_PLUGIN_PATH . 'templates/cod-verification-template.php'; ?>
+                    </div>
+                    <div class="cod-popup-error" style="display: none;">
+                        🔴 Please complete verification before placing the order.
+                    </div>
+                </div>
+            </div>
+            <?php
         }
     }
     
@@ -159,7 +190,6 @@ class CODVerifier {
         }
         
         $enable_otp = get_option('cod_verifier_enable_otp', '1');
-        $enable_token = get_option('cod_verifier_enable_token', '1');
         
         $errors = array();
         
@@ -177,7 +207,6 @@ class CODVerifier {
                 $errors[] = __('Please verify your phone number with OTP before placing the order.', 'cod-verifier');
             }
         }
-        
         
         // If there are errors, prevent order processing
         if (!empty($errors)) {
@@ -215,7 +244,6 @@ class CODVerifier {
         }
         
         $enable_otp = get_option('cod_verifier_enable_otp', '1');
-        $enable_token = get_option('cod_verifier_enable_token', '1');
         $test_mode = get_option('cod_verifier_test_mode', '1');
         $allowed_regions = get_option('cod_verifier_allowed_regions', 'india');
         
@@ -232,7 +260,6 @@ class CODVerifier {
                 echo '</p></div>';
             }
         }
-        
         
         // Check if Twilio SDK exists
         $twilio_autoload = COD_VERIFIER_PLUGIN_PATH . 'includes/twilio-sdk/src/Twilio/autoload.php';
@@ -266,6 +293,7 @@ class CODVerifier {
         // Set default options
         add_option('cod_verifier_enable_otp', '1');
         add_option('cod_verifier_test_mode', '1');
+        add_option('cod_verifier_ui_type', 'inline'); // NEW: Default UI type
         add_option('cod_verifier_allowed_regions', 'india'); // Default to India for backward compatibility
         add_option('cod_verifier_otp_timer_duration', 30); // Default 30 seconds
         add_option('cod_verifier_twilio_sid', '');
